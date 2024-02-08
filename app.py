@@ -400,7 +400,7 @@ async def tts():
     # save the audio from the URL
     await download_and_save_voice(voiceType)
     voice = compute_style('0.wav')
-    wav = STinference(inputText, voice, "I am sad", alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1)
+    wav = inference(inputText, voice, alpha=0.3, beta=0.7, diffusion_steps=20, embedding_scale=1)
     write('result.wav', 24000, wav)
     audio_binary = wav.tobytes()
     
