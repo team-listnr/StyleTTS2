@@ -5,3 +5,4 @@ __pycache__/
 ./Utils/JDC/__pycache__
 ./Modules/__pycache__
 ./Modules/diffusion/__pycache__
+/Models/
