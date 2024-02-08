@@ -27,6 +27,9 @@ from scipy.io.wavfile import write
 print("TORCH STUFF")
 import torch
 print("START")
+import gc
+
+gc.collect()
 torch.cuda.empty_cache()
 torch.manual_seed(0)
 torch.backends.cudnn.benchmark = False
