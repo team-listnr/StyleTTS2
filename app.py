@@ -27,6 +27,7 @@ from scipy.io.wavfile import write
 print("TORCH STUFF")
 import torch
 print("START")
+torch.cuda.empty_cache()
 torch.manual_seed(0)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
