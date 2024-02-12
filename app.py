@@ -54,6 +54,12 @@ import torchaudio
 import librosa
 from nltk.tokenize import word_tokenize
 from scipy.io.wavfile import write
+from openai import OpenAI
+
+client = OpenAI(
+    # This is the default and can be omitted
+    api_key="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",
+)
 
 from models import *
 from utils import *
@@ -405,6 +411,54 @@ async def tts():
     await download_and_save_voice(voiceType)
     voice = compute_style('0.wav')
     wav = inference(inputText, voice, alpha=0.3, beta=0.7, diffusion_steps=5, embedding_scale=1)
+    # write('result.wav', 24000, wav)
+    audio_binary = wav.tobytes()
+    
+    # Read the WAV file content
+    # with open('result.wav', 'rb') as f:
+    #     wav_content = f.read()
+    
+    # Return the WAV content as Quart response with appropriate content type
+    return audio_binary
+
+@app.route('/dub', methods=['POST'])
+@route_cors(allow_origin="*", allow_headers=["Content-Type"])
+async def dub():
+    data = await request.get_json()
+    # audio url to be dubbed
+    audio = data['audio']
+    # source language
+    # source = data['source']
+    # target language
+    target = data['target']
+
+    # save the audio from the URL
+    await download_and_save_voice(audio)
+    voice = compute_style('0.wav')
+    audio_file = open("0.wav", "rb")
+    transcript = client.audio.transcriptions.create(
+    model="whisper-1",
+    file=audio_file
+    )
+    transcribed_text = transcript['text']
+    duration_of_transcribed = transcript['duration']
+    source_of_transcribed = transcript['language']
+    print(transcript + "\n\n\n\n")
+    print(transcribed_text, duration_of_transcribed, source_of_transcribed)
+
+    # translate the transcribed text
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": f"You will be provided with a sentence in {source_of_transcribed} language to {target} language in same length as the original sentence to be dubbed"},
+        {"role": "user", "content": transcribed_text }
+        ]
+    )
+
+    print("Translated text \n\n\n", completion.choices[0].message)
+    translated_text = completion.choices[0].message
+
+    wav = inference(translated_text, voice, alpha=0.3, beta=0.7, diffusion_steps=5, embedding_scale=1)
     write('result.wav', 24000, wav)
     audio_binary = wav.tobytes()
     
