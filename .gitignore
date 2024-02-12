@@ -6,3 +6,5 @@ __pycache__/
 ./Modules/__pycache__
 ./Modules/diffusion/__pycache__
 Models/
+0.wav
+result.wav
